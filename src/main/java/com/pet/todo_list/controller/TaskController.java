@@ -59,6 +59,7 @@ public class TaskController {
     }
 
     public List<Task> filterByStatus(TaskStatus status) {
+        log.info("Returning all tasks by status: {}", status);
         return taskService.filterByStatus(status);
     }
 

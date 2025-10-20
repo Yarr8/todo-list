@@ -28,6 +28,20 @@ public class CommandHandler {
             case EDIT -> handleEdit(command.getArgs());
             case LIST -> handleList();
             case DELETE -> handleDelete(command.getArgs());
+            case FILTER -> handleFilter(command.getArgs());
+        }
+    }
+
+    private void printTasksList(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            System.out.println("Empty");
+        }
+
+        for (Task task : tasks) {
+            System.out.printf(
+                    "id: %s, name: %s, description: %s, due date: %s, status: %s\n",
+                    task.getId(), task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus()
+            );
         }
     }
 
@@ -97,17 +111,7 @@ public class CommandHandler {
     }
 
     private void handleList() {
-        List<Task> tasks = controller.listAllTasks();
-        if (tasks.isEmpty()) {
-            System.out.println("Empty");
-        }
-
-        for (Task task : tasks) {
-            System.out.printf(
-                    "id: %s, name: %s, description: %s, due date: %s, status: %s\n",
-                    task.getId(), task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus()
-            );
-        }
+        printTasksList(controller.listAllTasks());
     }
 
     private void handleDelete(final Map<String, String> args) {
@@ -124,5 +128,22 @@ public class CommandHandler {
         }
 
         controller.deleteTask(id);
+    }
+
+    private void handleFilter(final Map<String, String> args) {
+        final String statusStr = args.get("status");
+        if (statusStr == null) {
+            throw new InvalidCommandException("Task status argument status= should be specified");
+        }
+
+        final TaskStatus status;
+        try {
+            status = TaskStatus.valueOf(statusStr);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            throw new InvalidCommandException(String.format("Unknown status: %s\n", statusStr));
+        }
+
+        List<Task> tasks = controller.filterByStatus(status);
+        printTasksList(tasks);
     }
 }

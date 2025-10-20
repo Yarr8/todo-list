@@ -11,10 +11,10 @@ import java.util.Map;
 public class CommandParser {
     public CommandDto parse(String input) {
         final String[] tokens = input.trim().split("\\s+");
-        final String commandStr = tokens[0].toUpperCase();
+        final String commandStr = tokens[0];
         Command command;
         try {
-            command = Command.valueOf(commandStr);
+            command = Command.valueOf(commandStr.toUpperCase());
         } catch (IllegalArgumentException illegalArgumentException) {
             throw new InvalidCommandException(String.format("Unknown command: %s\n", commandStr));
         }
