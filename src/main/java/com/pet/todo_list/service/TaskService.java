@@ -46,7 +46,7 @@ public class TaskService {
     }
 
     public List<Task> filterByStatus(final TaskStatus status) {
-        return null;
+        return repository.findByStatus(status);
     }
 
     public List<Task> sortByDueDate() {
