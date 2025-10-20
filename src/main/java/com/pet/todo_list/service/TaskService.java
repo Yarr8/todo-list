@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,10 +51,14 @@ public class TaskService {
     }
 
     public List<Task> sortByDueDate() {
-        return null;
+        return repository.findAll().stream()
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .toList();
     }
 
     public List<Task> sortByStatus() {
-        return null;
+        return repository.findAll().stream()
+                .sorted(Comparator.comparing(Task::getStatus))
+                .toList();
     }
 }
