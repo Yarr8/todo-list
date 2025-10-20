@@ -29,6 +29,7 @@ public class CommandHandler {
             case LIST -> handleList();
             case DELETE -> handleDelete(command.getArgs());
             case FILTER -> handleFilter(command.getArgs());
+            case SORT -> handleSort(command.getArgs());
         }
     }
 
@@ -144,6 +145,27 @@ public class CommandHandler {
         }
 
         List<Task> tasks = controller.filterByStatus(status);
+        printTasksList(tasks);
+    }
+
+    private void handleSort(Map<String, String> args) {
+        final String byField = args.get("field");
+        if (byField == null) {
+            throw new InvalidCommandException("Sort field argument field= should be specified");
+        }
+
+        final String dueDate = "dueDate";
+        final String status = "status";
+        if (!byField.equals(dueDate) && !byField.equals(status)) {
+            throw new InvalidCommandException("Sort field argument should be either dueDate or status");
+        }
+
+        final List<Task> tasks;
+        if (byField.equals(dueDate)) {
+            tasks = controller.sortByDueDate();
+        } else {
+            tasks = controller.sortByStatus();
+        }
         printTasksList(tasks);
     }
 }
