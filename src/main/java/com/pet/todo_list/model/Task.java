@@ -1,6 +1,7 @@
 package com.pet.todo_list.model;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
+@EqualsAndHashCode
 public class Task {
     private final UUID id;
     private final String title;
