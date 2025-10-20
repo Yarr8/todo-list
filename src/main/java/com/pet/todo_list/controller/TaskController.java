@@ -5,7 +5,6 @@ import com.pet.todo_list.model.TaskStatus;
 import com.pet.todo_list.service.TaskService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ public class TaskController {
     private final TaskService taskService;
 
     public Task addTask(String title, String description, LocalDate dueDate) {
-        log.info("Task creation attempt with title: {}", title);
+        log.info("Creating task with title: {}", title);
         try {
             Task task = taskService.addTask(title, description, dueDate);
             log.info("Task created successfully with id: {}", task.getId());
@@ -32,10 +31,10 @@ public class TaskController {
         }
     }
 
-    public Task editTask(UUID id, String title, String description, LocalDate dueDate) {
+    public Task editTask(UUID id, String title, String description, LocalDate dueDate, TaskStatus status) {
         log.info("Updating task with id: {}", id);
         try {
-            Task task = taskService.editTask(id, title, description, dueDate);
+            Task task = taskService.editTask(id, title, description, dueDate, status);
             log.info("Task updated successfully with id: {}", task.getId());
             return task;
         } catch (Exception e) {
@@ -45,15 +44,18 @@ public class TaskController {
     }
 
     public List<Task> listAllTasks() {
+        log.info("Returning all tasks");
         return taskService.listTasks();
     }
 
-    public Optional<Task> updateStatus(UUID id, TaskStatus status) {
-        return taskService.updateStatus(id, status);
-    }
-
-    public boolean deleteTask(UUID id) {
-        return taskService.deleteTask(id);
+    public void deleteTask(UUID id) {
+        log.info("Deleting task with id: {}", id);
+        try {
+            taskService.deleteTask(id);
+            log.info("Task deleted successfully with id: {}", id);
+        } catch (Exception e) {
+            log.error("Error deleting task: {}", e.getMessage());
+        }
     }
 
     public List<Task> filterByStatus(TaskStatus status) {
