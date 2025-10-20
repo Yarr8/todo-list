@@ -24,6 +24,7 @@ public class CommandHandler {
             case EXIT -> handleExit();
             case ADD -> handleAdd(command.getArgs());
             case EDIT -> handleEdit(command.getArgs());
+            case LIST -> handleList();
         }
     }
 
@@ -77,5 +78,14 @@ public class CommandHandler {
         }
 
         controller.editTask(id, title, description, dueDate);
+    }
+
+    private void handleList() {
+        for (Task task : controller.listAllTasks()) {
+            System.out.printf(
+                    "id: %s, name: %s, description: %s, due date: %s, status: %s\n",
+                    task.getId(), task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus()
+            );
+        }
     }
 }
