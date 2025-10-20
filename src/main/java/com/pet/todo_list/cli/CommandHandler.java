@@ -4,12 +4,14 @@ import com.pet.todo_list.controller.TaskController;
 import com.pet.todo_list.dto.CommandDto;
 import com.pet.todo_list.exception.InvalidCommandException;
 import com.pet.todo_list.model.Task;
+import com.pet.todo_list.model.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,12 +21,13 @@ public class CommandHandler {
     private final TaskController controller;
     private final ConfigurableApplicationContext context;
 
-    public void handle(CommandDto command) {
+    public void handle(final CommandDto command) {
         switch (command.getCommand()) {
             case EXIT -> handleExit();
             case ADD -> handleAdd(command.getArgs());
             case EDIT -> handleEdit(command.getArgs());
             case LIST -> handleList();
+            case DELETE -> handleDelete(command.getArgs());
         }
     }
 
@@ -33,33 +36,35 @@ public class CommandHandler {
         context.close();
     }
 
-    private void handleAdd(Map<String, String> args) {
-        String title = args.get("name");
-        String description = args.get("desc");
-        String dateStr = args.get("date");
+    private void handleAdd(final Map<String, String> args) {
+        final String title = args.get("name");
+        final String description = args.get("desc");
+        final String dateStr = args.get("date");
         if (title == null || description == null || dateStr == null) {
             throw new InvalidCommandException("Arguments name=, desc= and date= should be specified");
         }
 
-        LocalDate dueDate;
+        final LocalDate dueDate;
         try {
             dueDate = LocalDate.parse(dateStr);
         } catch (DateTimeParseException e) {
             throw new InvalidCommandException("Invalid date format: " + dateStr);
         }
+
         controller.addTask(title, description, dueDate);
     }
 
-    private void handleEdit(Map<String, String> args) {
-        String idStr = args.get("id");
+    private void handleEdit(final Map<String, String> args) {
+        final String idStr = args.get("id");
         if (idStr == null) {
             throw new InvalidCommandException("Task ID argument id= should be specified");
         }
-        String title = args.get("name");
-        String description = args.get("desc");
-        String dateStr = args.get("date");
+        final String title = args.get("name");
+        final String description = args.get("desc");
+        final String dateStr = args.get("date");
+        final String statusStr = args.get("status");
 
-        LocalDate dueDate;
+        final LocalDate dueDate;
         if (dateStr == null) {
             dueDate = null;
         } else {
@@ -70,22 +75,54 @@ public class CommandHandler {
             }
         }
 
-        UUID id;
+        TaskStatus status;
+        if (statusStr == null) {
+            status = null;
+        } else {
+            try {
+                status = TaskStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException illegalArgumentException) {
+                throw new InvalidCommandException(String.format("Unknown status: %s\n", statusStr));
+            }
+        }
+
+        final UUID id;
         try {
             id = UUID.fromString(idStr);
         } catch (IllegalArgumentException illegalArgumentException) {
             throw new InvalidCommandException("Invalid ID format: " + idStr);
         }
 
-        controller.editTask(id, title, description, dueDate);
+        controller.editTask(id, title, description, dueDate, status);
     }
 
     private void handleList() {
-        for (Task task : controller.listAllTasks()) {
+        List<Task> tasks = controller.listAllTasks();
+        if (tasks.isEmpty()) {
+            System.out.println("Empty");
+        }
+
+        for (Task task : tasks) {
             System.out.printf(
                     "id: %s, name: %s, description: %s, due date: %s, status: %s\n",
                     task.getId(), task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus()
             );
         }
+    }
+
+    private void handleDelete(final Map<String, String> args) {
+        final String idStr = args.get("id");
+        if (idStr == null) {
+            throw new InvalidCommandException("Task ID argument id= should be specified");
+        }
+
+        final UUID id;
+        try {
+            id = UUID.fromString(idStr);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            throw new InvalidCommandException("Invalid ID format: " + idStr);
+        }
+
+        controller.deleteTask(id);
     }
 }

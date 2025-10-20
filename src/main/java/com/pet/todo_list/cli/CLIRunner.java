@@ -28,8 +28,8 @@ public class CLIRunner implements CommandLineRunner, ApplicationListener<Context
     @Override
     public void run(String... args) throws Exception {
         log.info("Todo-list application started");
-        System.out.println("Enter command, or HELP to list all available commands");
         while (running) {
+            System.out.println("Enter command: ");
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             try {
