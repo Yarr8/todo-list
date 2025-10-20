@@ -16,7 +16,7 @@ public interface TaskRepository {
 
     void save(Task task);
 
-    void delete(UUID id);
+    boolean delete(UUID id);
 
     List<Task> findByStatus(TaskStatus status);
 }

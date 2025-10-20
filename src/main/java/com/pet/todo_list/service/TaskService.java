@@ -1,7 +1,10 @@
 package com.pet.todo_list.service;
 
+import com.pet.todo_list.exception.TaskNotFoundException;
 import com.pet.todo_list.model.Task;
 import com.pet.todo_list.model.TaskStatus;
+import com.pet.todo_list.repository.TaskRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -10,13 +13,25 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class TaskService {
+    private final TaskRepository repository;
+
     public Task addTask(String title, String description, LocalDate dueDate) {
-        return null;
+        Task task = Task.createNew(title, description, dueDate);
+        repository.save(task);
+        return task;
     }
 
-    public Optional<Task> editTask(UUID id, String title, String description, LocalDate dueDate) {
-        return Optional.empty();
+    public Task editTask(UUID id, String title, String description, LocalDate dueDate) {
+        Task task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
+        Task.TaskBuilder builder = task.toBuilder();
+        if (title != null) builder.title(title);
+        if (description != null) builder.description(description);
+        if (dueDate != null) builder.dueDate(dueDate);
+        Task newTask = builder.build();
+        repository.save(newTask);
+        return newTask;
     }
 
     public Optional<Task> updateStatus(UUID id, TaskStatus status) {
@@ -28,7 +43,7 @@ public class TaskService {
     }
 
     public List<Task> listTasks() {
-        return null;
+        return repository.findAll();
     }
 
     public List<Task> filterByStatus(TaskStatus status) {

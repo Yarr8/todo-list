@@ -31,7 +31,50 @@ public class Task {
         return new Task(this.id, this.title, this.description, this.dueDate, newStatus);
     }
 
-    public Task withDueDate(LocalDate newDueDate) {
-        return new Task(this.id, this.title, this.description, newDueDate, this.status);
+    public TaskBuilder toBuilder() {
+        return new TaskBuilder(this);
+    }
+
+    public static class TaskBuilder {
+        private UUID id;
+        private String title;
+        private String description;
+        private LocalDate dueDate;
+        private TaskStatus status;
+
+        public TaskBuilder() {
+        }
+
+        private TaskBuilder(Task task) {
+            this.id = task.id;
+            this.title = task.title;
+            this.description = task.description;
+            this.dueDate = task.dueDate;
+            this.status = task.status;
+        }
+
+        public TaskBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public TaskBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public TaskBuilder dueDate(LocalDate dueDate) {
+            this.dueDate = dueDate;
+            return this;
+        }
+
+        public TaskBuilder status(TaskStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Task build() {
+            return new Task(id, title, description, dueDate, status);
+        }
     }
 }
